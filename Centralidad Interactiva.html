@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>¿Quién es el más influyente? · Centralidad interactiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+:root {
+  --bg: oklch(0.97 0.006 85);
+  --paper: #ffffff;
+  --ink: oklch(0.18 0.012 260);
+  --ink-dim: oklch(0.45 0.012 260);
+  --ink-soft: oklch(0.62 0.010 80);
+  --rule: oklch(0.86 0.006 80);
+  --rule-soft: oklch(0.92 0.005 80);
+  --teal: oklch(0.62 0.10 175);
+  --amber: oklch(0.78 0.15 65);
+  --coral: oklch(0.66 0.18 30);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: "Geist", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-feature-settings: "ss01","cv11";
+}
+.page {
+  max-width: 1500px;
+  margin: 0 auto;
+  padding: 56px 56px 72px;
+}
+header h1 {
+  font-family: "Instrument Serif", serif;
+  font-weight: 400;
+  font-size: 72px;
+  letter-spacing: -0.02em;
+  margin: 0;
+  line-height: 1;
+  text-wrap: balance;
+}
+header .sub {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 24px;
+  color: var(--ink-dim);
+  margin: 20px 0 0;
+  max-width: 700px;
+}
+.controls {
+  display: flex; align-items: center; gap: 14px;
+  margin: 36px 0 0;
+  font-family: "JetBrains Mono", monospace;
+}
+.btn {
+  background: var(--ink);
+  color: var(--bg);
+  border: 0;
+  padding: 14px 24px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.btn:hover { background: oklch(0.3 0.012 260); }
+.btn:active { transform: translateY(1px); }
+.btn.ghost {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule);
+}
+.btn.ghost:hover { background: oklch(0.92 0.008 85); }
+.controls .spacer { flex: 1; }
+.controls .tick {
+  color: var(--ink-soft);
+  letter-spacing: 0.1em;
+  font-size: 13px;
+}
+.controls .tick .v {
+  color: var(--ink);
+  font-weight: 500;
+  margin-left: 6px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 28px;
+  margin-top: 36px;
+}
+.panel {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  padding: 28px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: relative;
+}
+.panel-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px;
+}
+.panel .tag {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+[data-color="teal"] .tag { color: var(--teal); }
+[data-color="amber"] .tag { color: var(--amber); }
+[data-color="coral"] .tag { color: var(--coral); }
+
+.panel .step {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  color: var(--ink-soft);
+  font-size: 14px;
+}
+.panel h2 {
+  font-family: "Geist", sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  margin: 0 0 4px;
+  letter-spacing: -0.01em;
+}
+.panel h2 .alt {
+  font-weight: 400;
+  color: var(--ink-soft);
+  font-size: 18px;
+  margin-left: 4px;
+}
+.panel .cap {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ink-dim);
+  margin: 4px 0 12px;
+}
+.viz-wrap {
+  position: relative;
+  background: oklch(0.985 0.005 85);
+  border: 1px solid var(--rule-soft);
+  border-radius: 2px;
+  margin-top: 8px;
+  overflow: hidden;
+}
+.viz-wrap svg { width: 100%; height: 260px; display: block; }
+
+.viz-hud {
+  position: absolute; top: 12px; right: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  color: var(--ink-soft);
+  text-transform: uppercase;
+  background: oklch(1 0 0 / 0.7);
+  padding: 4px 8px;
+}
+
+.metric-row {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--rule-soft);
+}
+.metric {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+.metric .num {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 64px;
+  line-height: 0.9;
+  letter-spacing: -0.02em;
+  transition: color 0.2s;
+}
+.metric .lbl {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  max-width: 110px;
+  line-height: 1.4;
+}
+[data-color="teal"] .metric .num { color: var(--teal); }
+[data-color="amber"] .metric .num { color: var(--amber); }
+[data-color="coral"] .metric .num { color: var(--coral); }
+
+.takeaway {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 16px;
+  line-height: 1.35;
+  color: var(--ink-dim);
+  max-width: 180px;
+  text-align: right;
+}
+.takeaway b {
+  font-family: "Geist", sans-serif;
+  font-style: normal;
+  font-weight: 500;
+}
+[data-color="teal"] .takeaway b { color: var(--teal); }
+[data-color="amber"] .takeaway b { color: var(--amber); }
+[data-color="coral"] .takeaway b { color: var(--coral); }
+
+.cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 28px;
+  margin-top: 28px;
+}
+.card {
+  padding: 22px 24px;
+  background: oklch(0.94 0.006 85);
+  border-left: 4px solid;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ink-dim);
+}
+.card .title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+  font-weight: 500;
+}
+.card strong { color: var(--ink); font-weight: 600; }
+[data-color="teal"].card { border-color: var(--teal); }
+[data-color="teal"].card .title { color: var(--teal); }
+[data-color="amber"].card { border-color: var(--amber); }
+[data-color="amber"].card .title { color: var(--amber); }
+[data-color="coral"].card { border-color: var(--coral); }
+[data-color="coral"].card .title { color: var(--coral); }
+
+.footnote {
+  margin-top: 32px;
+  padding: 32px 40px;
+  background: var(--ink);
+  color: var(--bg);
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.footnote .mark {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 88px;
+  color: var(--coral);
+  line-height: 0.8;
+  letter-spacing: -0.04em;
+}
+.footnote .text {
+  font-family: "Instrument Serif", serif;
+  font-style: italic;
+  font-size: 26px;
+  line-height: 1.3;
+  flex: 1;
+  text-wrap: pretty;
+}
+.footnote .text strong {
+  color: var(--coral);
+  font-style: normal;
+  font-family: "Geist", sans-serif;
+  font-weight: 500;
+}
+
+@keyframes dashflow {
+  to { stroke-dashoffset: -16; }
+}
+@keyframes hubBeat {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+.hub-beat { transform-origin: center; transform-box: fill-box; animation: hubBeat 1.6s ease-in-out infinite; }
+
+/* Pulse rings */
+@keyframes pulseRing {
+  from { r: 18; opacity: 0.6; }
+  to { r: 40; opacity: 0; }
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+const TICK_MS = 80;
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+function mod(n, m) { return ((n % m) + m) % m; }
+
+// ========================================================================
+// DEGREE — sequential neighbor count
+// ========================================================================
+function DegreePanel({ tick }) {
+  const center = { x: 200, y: 150 };
+  const r = 100;
+  const spokes = [0,1,2,3,4,5].map(i => {
+    const a = (i * 60 - 90) * Math.PI / 180;
+    return { x: center.x + r * Math.cos(a), y: center.y + r * Math.sin(a) };
+  });
+  const CYCLE = 110;
+  const phase = tick % CYCLE;
+  const litAt = i => i * 12 + 4;
+  const lit = i => phase >= litAt(i);
+  const count = phase < 4 ? 0 : Math.min(6, Math.floor((phase - 4) / 12) + 1);
+  const allLit = phase >= litAt(5) + 8;
+
+  // Highlight current spoke being counted
+  const currentlyCountingIdx = (phase >= 4 && phase < litAt(5) + 8) ? Math.min(5, Math.floor((phase - 4) / 12)) : -1;
+
+  return (
+    <div className="panel" data-color="teal">
+      <div className="panel-head">
+        <span className="tag">01 · GRADO</span>
+        <span className="step">{count === 0 ? 'observa…' : count === 6 ? '¡seis vecinos!' : `contando · ${count}/6`}</span>
+      </div>
+      <h2>Grado<span className="alt">/ Degree</span></h2>
+      <p className="cap">Cuenta conexiones directas.</p>
+      <div className="viz-wrap">
+        <div className="viz-hud">k(v) = #vecinos</div>
+        <svg viewBox="0 0 400 300">
+          {/* Edges */}
+          {spokes.map((p, i) => (
+            <line key={'e'+i}
+              x1={center.x} y1={center.y} x2={p.x} y2={p.y}
+              stroke={lit(i) ? 'var(--teal)' : 'oklch(0.85 0.008 80)'}
+              strokeWidth={lit(i) ? 2.5 : 1.4}
+              style={{ transition: 'stroke 0.35s ease, stroke-width 0.35s ease' }}
+            />
+          ))}
+          {/* Current counting flash */}
+          {currentlyCountingIdx >= 0 && lit(currentlyCountingIdx) && (
+            <circle cx={spokes[currentlyCountingIdx].x} cy={spokes[currentlyCountingIdx].y}
+              r={22} fill="none" stroke="var(--teal)" strokeWidth="2" opacity="0.5">
+              <animate attributeName="r" from="14" to="30" dur="0.7s" repeatCount="1"/>
+              <animate attributeName="opacity" from="0.7" to="0" dur="0.7s" repeatCount="1"/>
+            </circle>
+          )}
+          {/* Outer nodes */}
+          {spokes.map((p, i) => (
+            <g key={'n'+i}>
+              <circle cx={p.x} cy={p.y}
+                r={lit(i) ? 14 : 10}
+                fill={lit(i) ? 'var(--teal)' : 'oklch(0.18 0.012 260)'}
+                style={{ transition: 'all 0.35s ease' }}
+              />
+              {lit(i) && (
+                <text x={p.x} y={p.y + 4.5}
+                  fontFamily="JetBrains Mono" fontSize="12" textAnchor="middle"
+                  fill="white" fontWeight="600">{i + 1}</text>
+              )}
+            </g>
+          ))}
+          {/* Center */}
+          <circle cx={center.x} cy={center.y} r={22}
+            fill="var(--teal)"
+            className={allLit ? 'hub-beat' : ''}
+            style={{
+              filter: allLit
+                ? 'drop-shadow(0 0 18px oklch(0.62 0.10 175 / 0.7))'
+                : 'drop-shadow(0 0 6px oklch(0.62 0.10 175 / 0.3))',
+              transition: 'filter 0.4s'
+            }}/>
+          <text x={center.x} y={center.y + 5}
+            fontFamily="JetBrains Mono" fontSize="14" textAnchor="middle"
+            fill="white" fontWeight="700">v</text>
+        </svg>
+      </div>
+      <div className="metric-row">
+        <div className="metric">
+          <span className="num">{count}</span>
+          <span className="lbl">k(v) = grado</span>
+        </div>
+        <div className="takeaway">
+          ¿Muchos amigos = <b>influencia</b>? No necesariamente.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================================================================
+// BETWEENNESS — packets through a bridge
+// ========================================================================
+function BetweennessPanel({ tick }) {
+  const L = {
+    L1: { x: 60,  y: 70  },
+    L2: { x: 60,  y: 230 },
+    L3: { x: 130, y: 110 },
+    L4: { x: 130, y: 190 },
+  };
+  const R = {
+    R1: { x: 340, y: 70  },
+    R2: { x: 340, y: 230 },
+    R3: { x: 270, y: 110 },
+    R4: { x: 270, y: 190 },
+  };
+  const B = { x: 200, y: 150 };
+  const nodes = { ...L, ...R, B };
+  const edges = [
+    ['L1','L3'],['L1','L4'],['L2','L3'],['L2','L4'],['L3','L4'],['L1','L2'],
+    ['R1','R3'],['R1','R4'],['R2','R3'],['R2','R4'],['R3','R4'],['R1','R2'],
+    ['L3','B'],['L4','B'],['R3','B'],['R4','B'],
+  ];
+
+  // Sequence of packets across the bridge
+  const seqs = [
+    ['L1','L3','B','R4','R2'],
+    ['L2','L4','B','R3','R1'],
+    ['R1','R3','B','L4','L2'],
+    ['R2','R4','B','L3','L1'],
+  ];
+  const PACKET_INTERVAL = 22;
+  const PACKET_DURATION = 24;
+
+  const packets = [];
+  for (let k = -2; k <= Math.ceil(tick / PACKET_INTERVAL); k++) {
+    const start = k * PACKET_INTERVAL;
+    const elapsed = tick - start;
+    if (elapsed < 0 || elapsed > PACKET_DURATION) continue;
+    const seq = seqs[mod(k, 4)];
+    const path = seq.map(id => nodes[id]);
+    const segCount = path.length - 1;
+    const t = Math.min(1, elapsed / PACKET_DURATION);
+    const segT = t * segCount;
+    const segIdx = Math.min(Math.floor(segT), segCount - 1);
+    const f = segT - segIdx;
+    const a = path[segIdx];
+    const b = path[segIdx + 1];
+    const crossingBridge = segIdx === 1 || segIdx === 2;
+    packets.push({
+      id: k,
+      x: lerp(a.x, b.x, f),
+      y: lerp(a.y, b.y, f),
+      crossingBridge,
+    });
+  }
+
+  const totalCrossings = Math.max(0, Math.ceil((tick + 2 * PACKET_INTERVAL) / PACKET_INTERVAL) - 2);
+  const bridgeActive = packets.some(p => p.crossingBridge);
+
+  const bridgeEdgeIds = new Set(['L3-B','L4-B','R3-B','R4-B','B-L3','B-L4','B-R3','B-R4']);
+
+  return (
+    <div className="panel" data-color="amber">
+      <div className="panel-head">
+        <span className="tag">02 · INTERMEDIACIÓN</span>
+        <span className="step">{bridgeActive ? '→ atraviesa el puente' : 'el tráfico fluye…'}</span>
+      </div>
+      <h2>Intermediación<span className="alt">/ Betweenness</span></h2>
+      <p className="cap">El puente entre comunidades.</p>
+      <div className="viz-wrap">
+        <div className="viz-hud">Σ caminos óptimos × B</div>
+        <svg viewBox="0 0 400 300">
+          {/* Edges */}
+          {edges.map(([a, b], i) => {
+            const key = `${a}-${b}`;
+            const isBridge = bridgeEdgeIds.has(key);
+            return (
+              <line key={i}
+                x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y}
+                stroke={isBridge && bridgeActive ? 'var(--amber)' : 'oklch(0.85 0.008 80)'}
+                strokeWidth={isBridge ? 2 : 1.4}
+                style={{ transition: 'stroke 0.3s' }}/>
+            );
+          })}
+          {/* Pulse ring on bridge */}
+          {bridgeActive && (
+            <circle cx={B.x} cy={B.y} r={26} fill="none"
+              stroke="var(--amber)" strokeWidth="1.5" opacity="0.4">
+              <animate attributeName="r" from="20" to="40" dur="1s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.6" to="0" dur="1s" repeatCount="indefinite"/>
+            </circle>
+          )}
+          {/* Nodes */}
+          {Object.entries(nodes).map(([id, n]) => (
+            id === 'B' ? (
+              <g key={id}>
+                <circle cx={n.x} cy={n.y} r={20}
+                  fill="var(--amber)"
+                  className={bridgeActive ? 'hub-beat' : ''}
+                  style={{
+                    filter: bridgeActive
+                      ? 'drop-shadow(0 0 14px oklch(0.78 0.15 65 / 0.8))'
+                      : 'drop-shadow(0 0 6px oklch(0.78 0.15 65 / 0.4))',
+                  }}/>
+                <text x={n.x} y={n.y + 5}
+                  fontFamily="JetBrains Mono" fontSize="13" textAnchor="middle"
+                  fill="white" fontWeight="700">B</text>
+              </g>
+            ) : (
+              <circle key={id} cx={n.x} cy={n.y} r={9} fill="oklch(0.18 0.012 260)"/>
+            )
+          ))}
+          {/* Cluster labels */}
+          <text x={95} y={275} fontFamily="JetBrains Mono" fontSize="10" textAnchor="middle"
+            fill="var(--ink-soft)" letterSpacing="2">COMUNIDAD A</text>
+          <text x={305} y={275} fontFamily="JetBrains Mono" fontSize="10" textAnchor="middle"
+            fill="var(--ink-soft)" letterSpacing="2">COMUNIDAD B</text>
+          {/* Packets */}
+          {packets.map(p => (
+            <g key={p.id}>
+              <circle cx={p.x} cy={p.y} r={11} fill="none" stroke="var(--coral)" opacity="0.3"/>
+              <circle cx={p.x} cy={p.y} r={6} fill="var(--coral)"/>
+            </g>
+          ))}
+        </svg>
+      </div>
+      <div className="metric-row">
+        <div className="metric">
+          <span className="num">{totalCrossings}</span>
+          <span className="lbl">caminos × B</span>
+        </div>
+        <div className="takeaway">
+          <b>Captura puentes</b> — pero ignora rutas alternas.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================================================================
+// COMMUNICABILITY — walks of all lengths converge on hub
+// ========================================================================
+function CommunicabilityPanel({ tick }) {
+  const H = { x: 200, y: 150 };
+  const outerR = 100;
+  const outer = [0,1,2,3,4,5].map(i => {
+    const a = (i * 60 - 90) * Math.PI / 180;
+    return { x: H.x + outerR * Math.cos(a), y: H.y + outerR * Math.sin(a) };
+  });
+
+  // Edges: hub to all outer, plus ring connecting outer neighbors (wheel)
+  const edges = [];
+  outer.forEach(o => edges.push({ a: H, b: o, kind: 'spoke' }));
+  for (let i = 0; i < outer.length; i++) {
+    edges.push({ a: outer[i], b: outer[(i + 1) % outer.length], kind: 'ring' });
+  }
+
+  // Tendril pulses (walks of varying lengths)
+  const TENDRIL_INTERVAL = 6;
+  const TENDRIL_DURATION = 14;
+  const tendrils = [];
+  for (let k = -2; k <= Math.ceil(tick / TENDRIL_INTERVAL); k++) {
+    const start = k * TENDRIL_INTERVAL;
+    const elapsed = tick - start;
+    if (elapsed < 0 || elapsed > TENDRIL_DURATION) continue;
+    const idx = mod(k * 5 + 1, 6);
+    const len = mod(k * 3 + 1, 3); // 0,1,2 → 1-hop, 2-hop, 3-hop
+    let path;
+    if (len === 0) {
+      path = [outer[idx], H];
+    } else if (len === 1) {
+      path = [outer[idx], outer[(idx + 1) % 6], H];
+    } else {
+      path = [outer[idx], outer[(idx + 1) % 6], outer[(idx + 2) % 6], H];
+    }
+    const segCount = path.length - 1;
+    const t = Math.min(1, elapsed / TENDRIL_DURATION);
+    const segT = t * segCount;
+    const segIdx = Math.min(Math.floor(segT), segCount - 1);
+    const f = segT - segIdx;
+    const a = path[segIdx];
+    const b = path[segIdx + 1];
+    const arrived = segIdx === segCount - 1 && f > 0.85;
+    // attenuation: walks of length k weighted by 1/k!
+    const weight = 1 / [1, 2, 6][len];
+    tendrils.push({
+      id: k,
+      x: lerp(a.x, b.x, f),
+      y: lerp(a.y, b.y, f),
+      length: len + 1,
+      arrived,
+      progress: t,
+      weight,
+    });
+  }
+
+  const hubGlow = tendrils.some(t => t.arrived);
+  const cbcScore = (tick * 0.11).toFixed(1);
+
+  return (
+    <div className="panel" data-color="coral">
+      <div className="panel-head">
+        <span className="tag">03 · COMUNICABILIDAD</span>
+        <span className="step">caminos de toda longitud…</span>
+      </div>
+      <h2>Comunicabilidad<span className="alt">/ CBC</span></h2>
+      <p className="cap">Considera <em>todos</em> los caminos.</p>
+      <div className="viz-wrap">
+        <div className="viz-hud">CBC(v) = (e^A)<sub>vv</sub></div>
+        <svg viewBox="0 0 400 300">
+          <defs>
+            <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="oklch(0.66 0.18 30)" stopOpacity="0.5"/>
+              <stop offset="100%" stopColor="oklch(0.66 0.18 30)" stopOpacity="0"/>
+            </radialGradient>
+          </defs>
+          {/* Edges with constant flow */}
+          {edges.map((e, i) => (
+            <line key={i}
+              x1={e.a.x} y1={e.a.y} x2={e.b.x} y2={e.b.y}
+              stroke={e.kind === 'spoke' ? 'oklch(0.66 0.18 30 / 0.45)' : 'oklch(0.66 0.18 30 / 0.28)'}
+              strokeWidth={e.kind === 'spoke' ? 1.6 : 1.3}
+              strokeDasharray="3 5"
+              style={{
+                animation: `dashflow ${1.8 + (i % 4) * 0.3}s linear infinite`,
+                animationDelay: `${(i % 6) * 0.15}s`,
+              }}/>
+          ))}
+          {/* Hub aura */}
+          <circle cx={H.x} cy={H.y} r={56} fill="url(#hubGlow)"
+            opacity={hubGlow ? 1 : 0.7}
+            style={{ transition: 'opacity 0.3s' }}/>
+          {/* Outer nodes */}
+          {outer.map((o, i) => (
+            <circle key={i} cx={o.x} cy={o.y} r={9} fill="oklch(0.18 0.012 260)"/>
+          ))}
+          {/* Hub */}
+          <circle cx={H.x} cy={H.y} r={20} fill="var(--coral)"
+            className="hub-beat"
+            style={{
+              filter: 'drop-shadow(0 0 16px oklch(0.66 0.18 30 / 0.7))',
+            }}/>
+          <text x={H.x} y={H.y + 5}
+            fontFamily="JetBrains Mono" fontSize="13" textAnchor="middle"
+            fill="white" fontWeight="700">v</text>
+          {/* Arriving pulse ring */}
+          {hubGlow && (
+            <circle cx={H.x} cy={H.y} r={22} fill="none" stroke="var(--coral)" strokeWidth="2" opacity="0.5">
+              <animate attributeName="r" from="20" to="44" dur="0.9s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.6" to="0" dur="0.9s" repeatCount="indefinite"/>
+            </circle>
+          )}
+          {/* Tendril particles */}
+          {tendrils.map(t => {
+            const op = (1 - t.progress * 0.25) * (0.4 + 0.6 * t.weight);
+            const radius = 4 + 3 * t.weight;
+            return (
+              <g key={t.id}>
+                <circle cx={t.x} cy={t.y} r={radius * 1.8} fill="none"
+                  stroke="var(--coral)" opacity={op * 0.3}/>
+                <circle cx={t.x} cy={t.y} r={radius} fill="var(--coral)" opacity={op}/>
+              </g>
+            );
+          })}
+          {/* Path-length legend */}
+          <g transform="translate(14, 248)">
+            <text fontFamily="JetBrains Mono" fontSize="10" fill="var(--ink-soft)" letterSpacing="1.5">
+              <tspan x="0" y="0">CAMINOS</tspan>
+              <tspan x="0" y="14" fill="var(--coral)">k=1 ▌▌▌</tspan>
+              <tspan x="0" y="26" fill="oklch(0.66 0.18 30 / 0.6)">k=2 ▌▌</tspan>
+              <tspan x="0" y="38" fill="oklch(0.66 0.18 30 / 0.35)">k=3 ▌</tspan>
+            </text>
+          </g>
+        </svg>
+      </div>
+      <div className="metric-row">
+        <div className="metric">
+          <span className="num">{cbcScore}</span>
+          <span className="lbl">Σ caminos ponderados</span>
+        </div>
+        <div className="takeaway">
+          <b>Ve la red completa</b>, no solo los atajos.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ========================================================================
+// APP
+// ========================================================================
+function App() {
+  const [tick, setTick] = useState(0);
+  const [playing, setPlaying] = useState(true);
+
+  useEffect(() => {
+    if (!playing) return;
+    const id = setInterval(() => setTick(t => t + 1), TICK_MS);
+    return () => clearInterval(id);
+  }, [playing]);
+
+  return (
+    <div className="page">
+      <header>
+        <h1>¿Quién es el más influyente?</h1>
+        <p className="sub">Tres formas de medir <em>centralidad</em> — y por qué solo una nos sirve para mapear el contagio en un mercado.</p>
+      </header>
+
+      <div className="controls">
+        <button className="btn" onClick={() => setPlaying(p => !p)}>
+          {playing ? '❚❚  Pausar' : '▶  Reproducir'}
+        </button>
+        <button className="btn ghost" onClick={() => setTick(0)}>↺  Reiniciar</button>
+        <div className="spacer"></div>
+        <span className="tick">t<span className="v">{(tick * TICK_MS / 1000).toFixed(1)}s</span></span>
+      </div>
+
+      <div className="grid">
+        <DegreePanel tick={tick} />
+        <BetweennessPanel tick={tick} />
+        <CommunicabilityPanel tick={tick} />
+      </div>
+
+      <div className="cards">
+        <div className="card" data-color="teal">
+          <span className="title">Degree</span>
+          Cuenta amigos directos. Útil pero ingenuo: <strong>no distingue entre un nodo central y uno periférico-pero-popular</strong>.
+        </div>
+        <div className="card" data-color="amber">
+          <span className="title">Betweenness</span>
+          Mide cuántos caminos cortos pasan por el nodo. Captura puentes — <strong>pero sólo los caminos óptimos</strong>.
+        </div>
+        <div className="card" data-color="coral">
+          <span className="title">Communicability · CBC</span>
+          Considera todos los caminos posibles, ponderados por longitud. <strong>Nuestra medida favorita.</strong>
+        </div>
+      </div>
+
+      <div className="footnote">
+        <div className="mark">“</div>
+        <div className="text">
+          En un mercado financiero, el shock <em>no</em> viaja sólo por el camino más corto.<br/>
+          Viaja por <strong>todos los caminos posibles</strong> — por eso elegimos CBC.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
