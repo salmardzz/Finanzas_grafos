@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portafolios Ejemplo - Finanzas con Grafos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #11998e;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #38ef7d;
+        }
+
+        .portfolios-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .portfolio-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .portfolio-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .portfolio-header {
+            border-bottom: 3px solid #11998e;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .portfolio-title {
+            color: #11998e;
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .portfolio-subtitle {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .positive {
+            color: #10b981;
+        }
+
+        .negative {
+            color: #ef4444;
+        }
+
+        .asset-list {
+            margin-top: 15px;
+        }
+
+        .asset-item {
+            background: #f9fafb;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        .asset-symbol {
+            font-weight: 700;
+            color: #11998e;
+        }
+
+        .asset-percentage {
+            color: #666;
+            float: right;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .comparison-section h2 {
+            color: #11998e;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #11998e;
+            padding-bottom: 10px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table th {
+            background: #f3f4f6;
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #11998e;
+        }
+
+        table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+
+        table tr:hover {
+            background: #f9fafb;
+        }
+
+        .recommendation-box {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .recommendation-box h3 {
+            margin-bottom: 10px;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+        }
+
+        .risk-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .risk-low {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .risk-moderate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .risk-high {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .portfolios-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💼 Portafolios Ejemplo</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="Centralidad Interactiva.html">Grafos</a>
+                <a href="Dashboard.html">Dashboard</a>
+            </nav>
+        </header>
+
+        <div class="portfolios-grid">
+            <div class="portfolio-card">
+                <div class="portfolio-header">
+                    <div class="portfolio-title">👶 Conservative</div>
+                    <div class="portfolio-subtitle">Bajo riesgo, crecimiento estable</div>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">Retorno Esperado Anual</span>
+                    <span class="metric-value positive">5.2%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Volatilidad</span>
+                    <span class="metric-value">3.1%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Ratio de Sharpe</span>
+                    <span class="metric-value">1.68</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Drawdown Máximo</span>
+                    <span class="metric-value negative">-5.2%</span>
+                </div>
+
+                <span class="risk-badge risk-low">✓ Riesgo Bajo</span>
+
+                <div class="asset-list">
+                    <h4 style="color: #333; margin-bottom: 10px;">Composición:</h4>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Bonos USA</span>
+                        <span class="asset-percentage">50%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Blue Chips</span>
+                        <span class="asset-percentage">30%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Dividend Stocks</span>
+                        <span class="asset-percentage">15%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Cash</span>
+                        <span class="asset-percentage">5%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-card">
+                <div class="portfolio-header">
+                    <div class="portfolio-title">🏃 Balanced</div>
+                    <div class="portfolio-subtitle">Riesgo moderado, crecimiento equilibrado</div>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">Retorno Esperado Anual</span>
+                    <span class="metric-value positive">8.5%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Volatilidad</span>
+                    <span class="metric-value">6.8%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Ratio de Sharpe</span>
+                    <span class="metric-value">1.25</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Drawdown Máximo</span>
+                    <span class="metric-value negative">-12.5%</span>
+                </div>
+
+                <span class="risk-badge risk-moderate">⚠️ Riesgo Moderado</span>
+
+                <div class="asset-list">
+                    <h4 style="color: #333; margin-bottom: 10px;">Composición:</h4>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Acciones USA</span>
+                        <span class="asset-percentage">50%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Bonos</span>
+                        <span class="asset-percentage">30%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Int'l Stocks</span>
+                        <span class="asset-percentage">15%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Alternatives</span>
+                        <span class="asset-percentage">5%</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="portfolio-card">
+                <div class="portfolio-header">
+                    <div class="portfolio-title">🚀 Aggressive</div>
+                    <div class="portfolio-subtitle">Alto riesgo, crecimiento máximo</div>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">Retorno Esperado Anual</span>
+                    <span class="metric-value positive">12.8%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Volatilidad</span>
+                    <span class="metric-value">15.2%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Ratio de Sharpe</span>
+                    <span class="metric-value">0.84</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Drawdown Máximo</span>
+                    <span class="metric-value negative">-32.5%</span>
+                </div>
+
+                <span class="risk-badge risk-high">⚡ Riesgo Alto</span>
+
+                <div class="asset-list">
+                    <h4 style="color: #333; margin-bottom: 10px;">Composición:</h4>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Growth Stocks</span>
+                        <span class="asset-percentage">60%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Tech Stocks</span>
+                        <span class="asset-percentage">20%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Emerging Markets</span>
+                        <span class="asset-percentage">15%</span>
+                    </div>
+                    <div class="asset-item">
+                        <span class="asset-symbol">Crypto</span>
+                        <span class="asset-percentage">5%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Comparación de Rendimiento (5 Años)</h2>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Riesgo vs Rendimiento</h2>
+            <div class="chart-container">
+                <canvas id="riskReturnChart"></canvas>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Análisis de Portafolios</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Métrica</th>
+                            <th>Conservative</th>
+                            <th>Balanced</th>
+                            <th>Aggressive</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Retorno Anual Promedio</strong></td>
+                            <td><span class="positive">5.2%</span></td>
+                            <td><span class="positive">8.5%</span></td>
+                            <td><span class="positive">12.8%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Volatilidad Anual</strong></td>
+                            <td>3.1%</td>
+                            <td>6.8%</td>
+                            <td>15.2%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Ratio de Sharpe</strong></td>
+                            <td>1.68</td>
+                            <td>1.25</td>
+                            <td>0.84</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Máximo Drawdown</strong></td>
+                            <td>-5.2%</td>
+                            <td>-12.5%</td>
+                            <td><span class="negative">-32.5%</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Probabilidad Win Rate</strong></td>
+                            <td>72%</td>
+                            <td>68%</td>
+                            <td>62%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Diversificación</strong></td>
+                            <td>Alto</td>
+                            <td>Muy Alto</td>
+                            <td>Moderado</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="recommendation-box">
+                <h3>💡 Recomendaciones</h3>
+                <ul style="margin-left: 20px;">
+                    <li><strong>Principiantes o próximos a jubilarse:</strong> Elige Conservative</li>
+                    <li><strong>Inversores de mediano plazo (10+ años):</strong> Elige Balanced</li>
+                    <li><strong>Inversores experimentados con tolerancia al riesgo:</strong> Elige Aggressive</li>
+                    <li><strong>Mejor opción:</strong> Combina múltiples portafolios según diferentes objetivos</li>
+                </ul>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Finanzas con Grafos. Todos los portafolios son ejemplos educativos.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Performance Chart
+        const perfCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(perfCtx, {
+            type: 'line',
+            data: {
+                labels: ['2021', '2022', '2023', '2024', '2025', '2026'],
+                datasets: [
+                    {
+                        label: 'Conservative',
+                        data: [105, 105.5, 111.2, 118.8, 125.1, 131.6],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Balanced',
+                        data: [108.5, 105.2, 114.8, 125.6, 138.2, 150.1],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Aggressive',
+                        data: [112.8, 98.5, 122.5, 142.8, 165.3, 186.4],
+                        borderColor: '#ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Risk vs Return Chart
+        const riskCtx = document.getElementById('riskReturnChart').getContext('2d');
+        new Chart(riskCtx, {
+            type: 'scatter',
+            data: {
+                datasets: [
+                    {
+                        label: 'Conservative',
+                        data: [{x: 3.1, y: 5.2}],
+                        backgroundColor: '#10b981',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        radius: 10
+                    },
+                    {
+                        label: 'Balanced',
+                        data: [{x: 6.8, y: 8.5}],
+                        backgroundColor: '#f59e0b',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        radius: 10
+                    },
+                    {
+                        label: 'Aggressive',
+                        data: [{x: 15.2, y: 12.8}],
+                        backgroundColor: '#ef4444',
+                        borderColor: '#ef4444',
+                        borderWidth: 2,
+                        radius: 10
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'top' }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Riesgo (Volatilidad %)' },
+                        beginAtZero: true
+                    },
+                    y: {
+                        title: { display: true, text: 'Rendimiento Esperado (%)' },
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

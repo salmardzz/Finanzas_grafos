@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estrategias - Finanzas con Grafos</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #f5576c;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #f093fb;
+        }
+
+        .strategies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .strategy-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #f5576c;
+            transition: transform 0.3s;
+        }
+
+        .strategy-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .strategy-card h3 {
+            color: #f5576c;
+            margin-bottom: 10px;
+        }
+
+        .strategy-level {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .level-beginner {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .level-intermediate {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .level-advanced {
+            background: #fecaca;
+            color: #7f1d1d;
+        }
+
+        .strategy-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+            font-size: 0.95em;
+        }
+
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .pros, .cons {
+            font-size: 0.9em;
+        }
+
+        .pros h4, .cons h4 {
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .pros h4 {
+            color: #10b981;
+        }
+
+        .cons h4 {
+            color: #ef4444;
+        }
+
+        .pros ul, .cons ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .pros li:before {
+            content: "✓ ";
+            color: #10b981;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .cons li:before {
+            content: "✗ ";
+            color: #ef4444;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .comparison-section {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+
+        .comparison-section h2 {
+            color: #f5576c;
+            margin-bottom: 20px;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+        }
+
+        .recommendation {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 Estrategias de Inversión</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="Centralidad Interactiva.html">Grafos</a>
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Analisis.html">Análisis</a>
+            </nav>
+        </header>
+
+        <div class="strategies-grid">
+            <div class="strategy-card">
+                <h3>Buy & Hold</h3>
+                <span class="strategy-level level-beginner">Principiante</span>
+                <p class="strategy-description">Compra acciones de calidad y mantén a largo plazo (10+ años) sin hacer trading activo.</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Ventajas</h4>
+                        <ul>
+                            <li>Bajo mantenimiento</li>
+                            <li>Menos impuestos</li>
+                            <li>Comprobado históricamente</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Desventajas</h4>
+                        <ul>
+                            <li>Requiere paciencia</li>
+                            <li>No aproveita volatilidad</li>
+                            <li>Bajo rendimiento corto plazo</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-card">
+                <h3>Dollar Cost Averaging</h3>
+                <span class="strategy-level level-beginner">Principiante</span>
+                <p class="strategy-description">Invierte cantidades fijas regularmente, sin importar el precio del mercado.</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Ventajas</h4>
+                        <ul>
+                            <li>Reduce riesgo</li>
+                            <li>Disciplina automática</li>
+                            <li>Menos estrés</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Desventajas</h4>
+                        <ul>
+                            <li>Rendimientos mediocres</li>
+                            <li>Oportunidades perdidas</li>
+                            <li>Comisiones acumuladas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-card">
+                <h3>Value Investing</h3>
+                <span class="strategy-level level-intermediate">Intermedio</span>
+                <p class="strategy-description">Busca acciones infravaloradas comparando precio actual con valor intrínseco.</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Ventajas</h4>
+                        <ul>
+                            <li>Alto potencial</li>
+                            <li>Márgenes de seguridad</li>
+                            <li>Rentable a largo plazo</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Desventajas</h4>
+                        <ul>
+                            <li>Requiere análisis</li>
+                            <li>Esperas largas</li>
+                            <li>Error de análisis</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-card">
+                <h3>Growth Investing</h3>
+                <span class="strategy-level level-intermediate">Intermedio</span>
+                <p class="strategy-description">Enfócate en empresas con crecimiento superior al promedio del mercado.</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Ventajas</h4>
+                        <ul>
+                            <li>Alto crecimiento</li>
+                            <li>Empresas dinámicas</li>
+                            <li>Tendencias futuras</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Desventajas</h4>
+                        <ul>
+                            <li>Mayor volatilidad</li>
+                            <li>Precios altos</li>
+                            <li>Decepción común</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-card">
+                <h3>Momentum Trading</h3>
+                <span class="strategy-level level-advanced">Avanzado</span>
+                <p class="strategy-description">Compra activos con tendencia alcista fuerte y vende cuando pierden momentum.</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Ventajas</h4>
+                        <ul>
+                            <li>Rentabilidad rápida</li>
+                            <li>Aprovecha tendencias</li>
+                            <li>Control activo</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Desventajas</h4>
+                        <ul>
+                            <li>Alto riesgo</li>
+                            <li>Requiere tiempo</li>
+                            <li>Emociones juegan papel</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="strategy-card">
+                <h3>Mean Reversion</h3>
+                <span class="strategy-level level-advanced">Avanzado</span>
+                <p class="strategy-description">Explota desviaciones de precios comprando activos deprimidos y vendiendo los sobre valuados.</p>
+                <div class="pros-cons">
+                    <div class="pros">
+                        <h4>Ventajas</h4>
+                        <ul>
+                            <li>Rentable en rangos</li>
+                            <li>Estadísticamente sólido</li>
+                            <li>Buen RR</li>
+                        </ul>
+                    </div>
+                    <div class="cons">
+                        <h4>Desventajas</h4>
+                        <ul>
+                            <li>Falla en tendencias</li>
+                            <li>Timing difícil</li>
+                            <li>Requiere sistemas</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Comparación de Estrategias</h2>
+            <div class="chart-container">
+                <canvas id="comparisonChart"></canvas>
+            </div>
+        </div>
+
+        <div class="comparison-section">
+            <h2>Rendimiento Histórico por Estrategia</h2>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+            <div class="recommendation">
+                <p><strong>💡 Recomendación:</strong> Combina Buy & Hold con Dollar Cost Averaging para principiantes, o Value Investing para inversores experimentados.</p>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Finanzas con Grafos. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Comparison Chart
+        const compCtx = document.getElementById('comparisonChart').getContext('2d');
+        new Chart(compCtx, {
+            type: 'radar',
+            data: {
+                labels: ['Rendimiento', 'Riesgo', 'Facilidad', 'Tiempo', 'Diversificación'],
+                datasets: [
+                    {
+                        label: 'Buy & Hold',
+                        data: [7, 5, 9, 2, 7],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)'
+                    },
+                    {
+                        label: 'Value Investing',
+                        data: [8, 4, 5, 8, 6],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)'
+                    },
+                    {
+                        label: 'Momentum',
+                        data: [7, 9, 4, 8, 4],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        beginAtZero: true,
+                        max: 10
+                    }
+                }
+            }
+        });
+
+        // Performance Chart
+        const perfCtx = document.getElementById('performanceChart').getContext('2d');
+        new Chart(perfCtx, {
+            type: 'line',
+            data: {
+                labels: ['2019', '2020', '2021', '2022', '2023', '2024', '2025', '2026'],
+                datasets: [
+                    {
+                        label: 'Buy & Hold',
+                        data: [100, 112, 128, 95, 110, 125, 140, 155],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'Value Investing',
+                        data: [100, 115, 135, 105, 118, 138, 158, 178],
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        tension: 0.4
+                    },
+                    {
+                        label: 'S&P 500 Index',
+                        data: [100, 110, 125, 92, 108, 120, 135, 150],
+                        borderColor: '#8b5cf6',
+                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

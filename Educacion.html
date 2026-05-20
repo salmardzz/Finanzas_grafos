@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educación - Teoría de Grafos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            color: #333;
+        }
+
+        nav {
+            display: flex;
+            gap: 20px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #667eea;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        nav a:hover {
+            color: #764ba2;
+        }
+
+        .education-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .education-card h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .education-card h3 {
+            color: #764ba2;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .education-card p {
+            color: #666;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .example {
+            background: #f0f9ff;
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .example h4 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .example p {
+            color: #1e40af;
+        }
+
+        .definition {
+            background: #f5f3ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+            border-left: 4px solid #a78bfa;
+        }
+
+        .definition strong {
+            color: #6d28d9;
+        }
+
+        .key-concepts {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .concept {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #e0e7ff;
+        }
+
+        .concept strong {
+            color: #667eea;
+        }
+
+        .application {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            padding: 20px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .application h4 {
+            color: #92400e;
+            margin-bottom: 10px;
+        }
+
+        .application p {
+            color: #b45309;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+        }
+
+        .references {
+            background: #f3f4f6;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+        .references h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .references ul {
+            list-style-position: inside;
+            color: #666;
+        }
+
+        .references li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .key-concepts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📚 Educación - Teoría de Grafos</h1>
+            <nav>
+                <a href="index.html">Inicio</a>
+                <a href="Centralidad Interactiva.html">Grafos</a>
+                <a href="Dashboard.html">Dashboard</a>
+            </nav>
+        </header>
+
+        <div class="education-card">
+            <h2>¿Qué es un Grafo?</h2>
+            <p>Un grafo es una estructura matemática compuesta de <strong>nodos (vértices)</strong> y <strong>aristas (bordes)</strong> que conectan estos nodos. Los grafos representan relaciones entre objetos.</p>
+
+            <div class="definition">
+                <strong>Definición Formal:</strong> Un grafo G = (V, E) donde V es un conjunto de vértices y E es un conjunto de aristas que conectan pares de vértices.
+            </div>
+
+            <h3>Tipos de Grafos</h3>
+            <div class="key-concepts">
+                <div class="concept">
+                    <strong>Grafo Dirigido</strong><br>
+                    Las aristas tienen dirección: A → B indica relación de A hacia B únicamente.
+                </div>
+                <div class="concept">
+                    <strong>Grafo No Dirigido</strong><br>
+                    Las aristas son bidireccionales: A ↔ B indica relación mutua.
+                </div>
+                <div class="concept">
+                    <strong>Grafo Ponderado</strong><br>
+                    Las aristas tienen pesos/valores: (A, B, 0.85) indica correlación de 0.85.
+                </div>
+                <div class="concept">
+                    <strong>Grafo Desconectado</strong><br>
+                    Existen nodos sin conexión entre ellos.
+                </div>
+            </div>
+        </div>
+
+        <div class="education-card">
+            <h2>Aplicaciones en Finanzas</h2>
+
+            <h3>1. Análisis de Correlaciones</h3>
+            <p>Un grafo donde los nodos son activos (acciones, bonos, criptomonedas) y las aristas representan correlaciones entre ellos.</p>
+            <div class="application">
+                <h4>Ejemplo Práctico:</h4>
+                <p>Si AAPL y MSFT tienen correlación 0.72, se conectan con una arista de peso 0.72. Correlaciones fuertes indican que los precios se mueven juntos.</p>
+            </div>
+
+            <h3>2. Detección de Comunidades</h3>
+            <p>Identificar grupos de activos que se mueven juntos. Útil para diversificación.</p>
+            <div class="example">
+                <h4>Comunidad 1: Tecnología</h4>
+                <p>AAPL, MSFT, GOOGL, META (altamente correlacionadas)</p>
+            </div>
+            <div class="example">
+                <h4>Comunidad 2: Finanzas</h4>
+                <p>JPM, BAC, GS, WFC (altamente correlacionadas entre sí)</p>
+            </div>
+
+            <h3>3. Centralidad de Nodos</h3>
+            <p>Mide cuán importante es un activo en la red:</p>
+            <div class="key-concepts">
+                <div class="concept">
+                    <strong>Centralidad de Grado:</strong> Número de conexiones de un nodo.
+                </div>
+                <div class="concept">
+                    <strong>Centralidad de Cercanía:</strong> Qué tan cercano está a otros nodos.
+                </div>
+                <div class="concept">
+                    <strong>Centralidad de Intermediación:</strong> Qué tan a menudo es puente entre otros nodos.
+                </div>
+                <div class="concept">
+                    <strong>Centralidad de Eigenvector:</strong> Importancia basada en conexiones importantes.
+                </div>
+            </div>
+        </div>
+
+        <div class="education-card">
+            <h2>Métricas Clave de Grafos</h2>
+
+            <h3>Camino Más Corto (Shortest Path)</h3>
+            <p>La secuencia de aristas más corta entre dos nodos. En finanzas, identifica relaciones indirectas entre activos.</p>
+            <div class="code-block">
+Distancia(AAPL, JPM) = 2 pasos
+AAPL → (sector tech) → (sector financiero) → JPM
+            </div>
+
+            <h3>Coeficiente de Clustering</h3>
+            <p>Mide cuánto los vecinos de un nodo están conectados entre sí (0 a 1).</p>
+            <div class="example">
+                <h4>Si AAPL se conecta a MSFT y GOOGL:</h4>
+                <p>Si MSFT y GOOGL también se conectan, el clustering es alto (1.0). Si no, es bajo (0.0).</p>
+            </div>
+
+            <h3>Densidad del Grafo</h3>
+            <p>Proporción de aristas posibles que existen realmente. Grafo denso = muchas correlaciones.</p>
+            <div class="application">
+                <h4>Interpretación:</h4>
+                <p>Densidad alta (0.8+) indica mercado muy correlacionado. Baja (0.2-) indica independencia.</p>
+            </div>
+
+            <h3>Modularidad</h3>
+            <p>Mide la calidad de división en comunidades (0 a 1).</p>
+            <div class="code-block">
+Modularidad > 0.4: Comunidades bien definidas
+Modularidad < 0.2: Comunidades débiles
+            </div>
+        </div>
+
+        <div class="education-card">
+            <h2>Algoritmos Importantes</h2>
+
+            <h3>Algoritmo de Dijkstra</h3>
+            <p>Encuentra el camino más corto entre dos nodos en un grafo ponderado.</p>
+
+            <h3>PageRank</h3>
+            <p>Asigna importancia a nodos basándose en el número y calidad de conexiones. Usado por Google.</p>
+
+            <h3>Detección de Comunidades (Louvain)</h3>
+            <p>Agrupa nodos en comunidades maximizando la modularidad del grafo.</p>
+
+            <h3>Análisis de Centralidad</h3>
+            <p>Calcula qué nodos son más "centrales" en la red según diferentes métricas.</p>
+
+            <div class="references">
+                <h4>Recursos Adicionales:</h4>
+                <ul>
+                    <li><strong>NetworkX:</strong> Librería Python para análisis de grafos</li>
+                    <li><strong>Gephi:</strong> Herramienta visual para explorar grafos</li>
+                    <li><strong>Cytoscape.js:</strong> Librería JavaScript para visualización</li>
+                    <li><strong>Graph Theory Course:</strong> MIT OpenCourseWare</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="education-card">
+            <h2>Caso de Uso: Portfolio Optimization</h2>
+
+            <div class="example">
+                <h4>Problema:</h4>
+                <p>Seleccionar 5 activos de 20 para maximizar rendimiento y minimizar riesgo.</p>
+            </div>
+
+            <div class="application">
+                <h4>Solución con Grafos:</h4>
+                <p><strong>1.</strong> Crear grafo con correlaciones entre activos<br>
+                <strong>2.</strong> Detectar comunidades (grupos correlacionados)<br>
+                <strong>3.</strong> Seleccionar activos de diferentes comunidades (diversificación)<br>
+                <strong>4.</strong> Usar centralidad para identificar activos "hub" (influyentes)<br>
+                <strong>5.</strong> Optimizar pesos basándose en la estructura del grafo</strong></p>
+            </div>
+
+            <h3>Resultado Esperado</h3>
+            <p>Portfolio con máxima diversificación, donde los activos tienen mínima correlación, reduciendo riesgo sin sacrificar rendimiento.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2026 Finanzas con Grafos. Aprende más sobre teoría de grafos y análisis financiero.</p>
+        </footer>
+    </div>
+</body>
+</html>
