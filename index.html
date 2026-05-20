@@ -5,22 +5,28 @@
 <title>¿Quién es el más influyente? · Centralidad interactiva</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 <style>
 :root {
-  --bg: oklch(0.97 0.006 85);
-  --paper: #ffffff;
-  --ink: oklch(0.18 0.012 260);
-  --ink-dim: oklch(0.45 0.012 260);
-  --ink-soft: oklch(0.62 0.010 80);
-  --rule: oklch(0.86 0.006 80);
-  --rule-soft: oklch(0.92 0.005 80);
-  --teal: oklch(0.62 0.10 175);
-  --amber: oklch(0.78 0.15 65);
-  --coral: oklch(0.66 0.18 30);
+  /* Deep midnight navy palette */
+  --bg:        oklch(0.155 0.045 280);
+  --bg-2:      oklch(0.185 0.045 280);
+  --paper:     oklch(0.205 0.045 280);
+  --paper-2:   oklch(0.235 0.045 280);
+  --rule:      oklch(0.30 0.04 280);
+  --rule-soft: oklch(0.25 0.04 280);
+
+  --ink:       oklch(0.98 0.005 280);
+  --ink-dim:   oklch(0.72 0.025 280);
+  --ink-soft:  oklch(0.52 0.035 280);
+
+  /* Accents */
+  --violet:    oklch(0.74 0.16 295);
+  --cyan:      oklch(0.78 0.13 205);
+  --pink:      oklch(0.70 0.22 355);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -30,204 +36,235 @@ body {
   color: var(--ink);
   min-height: 100vh;
   font-feature-settings: "ss01","cv11";
+  /* subtle starfield */
+  background-image:
+    radial-gradient(circle at 12% 18%, oklch(1 0 0 / 0.025) 0, transparent 40%),
+    radial-gradient(circle at 88% 76%, oklch(0.78 0.13 205 / 0.05) 0, transparent 45%);
 }
+
 .page {
   max-width: 1500px;
   margin: 0 auto;
-  padding: 56px 56px 72px;
+  padding: 64px 56px 80px;
 }
+
+/* ----- header ----- */
 header h1 {
-  font-family: "Instrument Serif", serif;
-  font-weight: 400;
-  font-size: 72px;
-  letter-spacing: -0.02em;
+  font-family: "Geist", sans-serif;
+  font-weight: 700;
+  font-size: 76px;
+  letter-spacing: -0.025em;
   margin: 0;
-  line-height: 1;
+  line-height: 1.02;
   text-wrap: balance;
+  color: var(--ink);
 }
+header h1 .accent { color: var(--cyan); }
+
 header .sub {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
-  font-size: 24px;
+  font-family: "Geist", sans-serif;
+  font-weight: 300;
+  font-size: 22px;
   color: var(--ink-dim);
-  margin: 20px 0 0;
-  max-width: 700px;
+  margin: 22px 0 0;
+  max-width: 760px;
+  line-height: 1.45;
 }
+header .sub em {
+  font-style: normal;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ----- controls ----- */
 .controls {
   display: flex; align-items: center; gap: 14px;
-  margin: 36px 0 0;
-  font-family: "JetBrains Mono", monospace;
+  margin: 40px 0 0;
 }
 .btn {
   background: var(--ink);
   color: var(--bg);
   border: 0;
-  padding: 14px 24px;
+  padding: 14px 26px;
   font-family: "JetBrains Mono", monospace;
-  font-size: 13px;
-  letter-spacing: 0.14em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
   display: inline-flex; align-items: center; gap: 10px;
 }
-.btn:hover { background: oklch(0.3 0.012 260); }
+.btn:hover { background: var(--cyan); color: var(--bg); }
 .btn:active { transform: translateY(1px); }
 .btn.ghost {
   background: transparent;
   color: var(--ink);
   border: 1px solid var(--rule);
 }
-.btn.ghost:hover { background: oklch(0.92 0.008 85); }
+.btn.ghost:hover { background: var(--paper); color: var(--cyan); border-color: var(--cyan); }
 .controls .spacer { flex: 1; }
 .controls .tick {
   color: var(--ink-soft);
-  letter-spacing: 0.1em;
-  font-size: 13px;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-family: "JetBrains Mono", monospace;
+  text-transform: uppercase;
 }
 .controls .tick .v {
-  color: var(--ink);
+  color: var(--cyan);
   font-weight: 500;
-  margin-left: 6px;
+  margin-left: 8px;
 }
 
+/* ----- grid of panels ----- */
 .grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 28px;
-  margin-top: 36px;
+  gap: 32px;
+  margin-top: 44px;
 }
+
 .panel {
   background: var(--paper);
-  border: 1px solid var(--rule);
-  padding: 28px 24px 24px;
+  padding: 36px 32px 28px;
+  position: relative;
+  border: 1px solid var(--rule-soft);
   display: flex;
   flex-direction: column;
-  align-items: stretch;
-  position: relative;
+  overflow: hidden;
 }
-.panel-head {
-  display: flex; justify-content: space-between; align-items: baseline;
-  margin-bottom: 6px;
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 18px var(--accent);
 }
-.panel .tag {
-  font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-[data-color="teal"] .tag { color: var(--teal); }
-[data-color="amber"] .tag { color: var(--amber); }
-[data-color="coral"] .tag { color: var(--coral); }
+.panel[data-color="violet"] { --accent: var(--violet); }
+.panel[data-color="cyan"]   { --accent: var(--cyan); }
+.panel[data-color="pink"]   { --accent: var(--pink); }
 
-.panel .step {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
+.panel-eyebrow {
+  display: flex; align-items: center; gap: 12px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 18px;
+}
+.panel-eyebrow .step {
   color: var(--ink-soft);
-  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  margin-left: auto;
+  font-size: 11px;
 }
 .panel h2 {
   font-family: "Geist", sans-serif;
-  font-weight: 600;
-  font-size: 24px;
-  margin: 0 0 4px;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  font-size: 32px;
+  margin: 0 0 8px;
+  letter-spacing: -0.018em;
+  line-height: 1.05;
+  color: var(--ink);
 }
-.panel h2 .alt {
+.panel h2 .sub {
+  display: block;
   font-weight: 400;
   color: var(--ink-soft);
-  font-size: 18px;
-  margin-left: 4px;
+  font-size: 16px;
+  letter-spacing: 0;
+  margin-top: 4px;
+  font-family: "JetBrains Mono", monospace;
 }
 .panel .cap {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
-  font-size: 18px;
+  font-family: "Geist", sans-serif;
+  font-weight: 400;
+  font-size: 17px;
   color: var(--ink-dim);
-  margin: 4px 0 12px;
+  margin: 12px 0 18px;
+  line-height: 1.4;
 }
+
 .viz-wrap {
   position: relative;
-  background: oklch(0.985 0.005 85);
+  background: var(--bg-2);
   border: 1px solid var(--rule-soft);
-  border-radius: 2px;
   margin-top: 8px;
   overflow: hidden;
 }
-.viz-wrap svg { width: 100%; height: 260px; display: block; }
-
+.viz-wrap svg { width: 100%; height: 280px; display: block; }
 .viz-hud {
-  position: absolute; top: 12px; right: 12px;
+  position: absolute; top: 12px; right: 14px;
   font-family: "JetBrains Mono", monospace;
   font-size: 10px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.18em;
   color: var(--ink-soft);
   text-transform: uppercase;
-  background: oklch(1 0 0 / 0.7);
-  padding: 4px 8px;
 }
+.viz-hud b { color: var(--accent); font-weight: 600; }
 
+/* ----- metric row ----- */
 .metric-row {
   display: flex; align-items: flex-end; justify-content: space-between;
-  margin-top: 20px;
-  padding-top: 18px;
+  margin-top: 22px;
+  padding-top: 22px;
   border-top: 1px solid var(--rule-soft);
 }
 .metric {
   display: flex;
   align-items: baseline;
-  gap: 12px;
+  gap: 14px;
 }
 .metric .num {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
+  font-family: "Geist", sans-serif;
+  font-weight: 700;
   font-size: 64px;
   line-height: 0.9;
-  letter-spacing: -0.02em;
-  transition: color 0.2s;
+  letter-spacing: -0.04em;
+  color: var(--accent);
 }
 .metric .lbl {
   font-family: "JetBrains Mono", monospace;
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: 10px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--ink-soft);
   max-width: 110px;
-  line-height: 1.4;
+  line-height: 1.5;
 }
-[data-color="teal"] .metric .num { color: var(--teal); }
-[data-color="amber"] .metric .num { color: var(--amber); }
-[data-color="coral"] .metric .num { color: var(--coral); }
-
 .takeaway {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
-  font-size: 16px;
-  line-height: 1.35;
+  font-family: "Geist", sans-serif;
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.4;
   color: var(--ink-dim);
-  max-width: 180px;
+  max-width: 200px;
   text-align: right;
 }
 .takeaway b {
-  font-family: "Geist", sans-serif;
-  font-style: normal;
   font-weight: 500;
+  color: var(--accent);
 }
-[data-color="teal"] .takeaway b { color: var(--teal); }
-[data-color="amber"] .takeaway b { color: var(--amber); }
-[data-color="coral"] .takeaway b { color: var(--coral); }
 
+/* ----- bottom cards ----- */
 .cards {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  gap: 28px;
-  margin-top: 28px;
+  gap: 32px;
+  margin-top: 32px;
 }
 .card {
-  padding: 22px 24px;
-  background: oklch(0.94 0.006 85);
-  border-left: 4px solid;
+  padding: 26px 28px 28px;
+  background: var(--paper);
+  border: 1px solid var(--rule-soft);
+  position: relative;
+  font-family: "Geist", sans-serif;
+  font-weight: 300;
   font-size: 15px;
   line-height: 1.55;
   color: var(--ink-dim);
@@ -235,52 +272,59 @@ header .sub {
 .card .title {
   font-family: "JetBrains Mono", monospace;
   font-size: 12px;
+  font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   display: block;
-  font-weight: 500;
+  color: var(--accent);
 }
-.card strong { color: var(--ink); font-weight: 600; }
-[data-color="teal"].card { border-color: var(--teal); }
-[data-color="teal"].card .title { color: var(--teal); }
-[data-color="amber"].card { border-color: var(--amber); }
-[data-color="amber"].card .title { color: var(--amber); }
-[data-color="coral"].card { border-color: var(--coral); }
-[data-color="coral"].card .title { color: var(--coral); }
+.card strong { color: var(--ink); font-weight: 500; }
+.card[data-color="violet"] { --accent: var(--violet); }
+.card[data-color="cyan"]   { --accent: var(--cyan); }
+.card[data-color="pink"]   { --accent: var(--pink); }
 
+/* ----- footnote ----- */
 .footnote {
-  margin-top: 32px;
-  padding: 32px 40px;
-  background: var(--ink);
-  color: var(--bg);
+  margin-top: 40px;
+  padding: 36px 44px;
+  background: linear-gradient(135deg, oklch(0.20 0.07 290) 0%, oklch(0.18 0.05 270) 100%);
+  border: 1px solid var(--rule);
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 36px;
+  position: relative;
+  overflow: hidden;
+}
+.footnote::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--violet), var(--cyan), var(--pink));
 }
 .footnote .mark {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
-  font-size: 88px;
-  color: var(--coral);
-  line-height: 0.8;
-  letter-spacing: -0.04em;
+  font-family: "Geist", sans-serif;
+  font-weight: 800;
+  font-size: 96px;
+  color: var(--pink);
+  line-height: 0.7;
+  letter-spacing: -0.06em;
 }
 .footnote .text {
-  font-family: "Instrument Serif", serif;
-  font-style: italic;
+  font-family: "Geist", sans-serif;
+  font-weight: 400;
   font-size: 26px;
   line-height: 1.3;
   flex: 1;
   text-wrap: pretty;
+  color: var(--ink);
 }
+.footnote .text em { color: var(--ink-dim); font-style: italic; }
 .footnote .text strong {
-  color: var(--coral);
-  font-style: normal;
-  font-family: "Geist", sans-serif;
-  font-weight: 500;
+  color: var(--pink);
+  font-weight: 600;
 }
 
+/* ----- animations ----- */
 @keyframes dashflow {
   to { stroke-dashoffset: -16; }
 }
@@ -289,19 +333,27 @@ header .sub {
   50% { transform: scale(1.08); }
 }
 .hub-beat { transform-origin: center; transform-box: fill-box; animation: hubBeat 1.6s ease-in-out infinite; }
-
-/* Pulse rings */
-@keyframes pulseRing {
-  from { r: 18; opacity: 0.6; }
-  to { r: 40; opacity: 0; }
-}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useEffect, useRef } = React;
+const { useState, useEffect } = React;
 const TICK_MS = 80;
+
+const COLORS = {
+  violet: 'oklch(0.74 0.16 295)',
+  violetGlow: 'oklch(0.74 0.16 295 / 0.7)',
+  cyan: 'oklch(0.78 0.13 205)',
+  cyanGlow: 'oklch(0.78 0.13 205 / 0.7)',
+  pink: 'oklch(0.70 0.22 355)',
+  pinkGlow: 'oklch(0.70 0.22 355 / 0.7)',
+  edge: 'oklch(0.36 0.045 280)',
+  edgeDim: 'oklch(0.30 0.04 280)',
+  node: 'oklch(0.55 0.04 280)',
+  ink: 'oklch(0.98 0.005 280)',
+  bg2: 'oklch(0.205 0.045 280)',
+};
 
 function lerp(a, b, t) { return a + (b - a) * t; }
 function mod(n, m) { return ((n % m) + m) % m; }
@@ -311,7 +363,7 @@ function mod(n, m) { return ((n % m) + m) % m; }
 // ========================================================================
 function DegreePanel({ tick }) {
   const center = { x: 200, y: 150 };
-  const r = 100;
+  const r = 105;
   const spokes = [0,1,2,3,4,5].map(i => {
     const a = (i * 60 - 90) * Math.PI / 180;
     return { x: center.x + r * Math.cos(a), y: center.y + r * Math.sin(a) };
@@ -322,66 +374,58 @@ function DegreePanel({ tick }) {
   const lit = i => phase >= litAt(i);
   const count = phase < 4 ? 0 : Math.min(6, Math.floor((phase - 4) / 12) + 1);
   const allLit = phase >= litAt(5) + 8;
-
-  // Highlight current spoke being counted
-  const currentlyCountingIdx = (phase >= 4 && phase < litAt(5) + 8) ? Math.min(5, Math.floor((phase - 4) / 12)) : -1;
+  const currentIdx = (phase >= 4 && phase < litAt(5) + 8) ? Math.min(5, Math.floor((phase - 4) / 12)) : -1;
 
   return (
-    <div className="panel" data-color="teal">
-      <div className="panel-head">
-        <span className="tag">01 · GRADO</span>
+    <div className="panel" data-color="violet">
+      <div className="panel-eyebrow">
+        <span>01 / Grado</span>
         <span className="step">{count === 0 ? 'observa…' : count === 6 ? '¡seis vecinos!' : `contando · ${count}/6`}</span>
       </div>
-      <h2>Grado<span className="alt">/ Degree</span></h2>
-      <p className="cap">Cuenta conexiones directas.</p>
+      <h2>Detectamos a los conectados.<span className="sub">degree(v) = #vecinos directos</span></h2>
+      <p className="cap">El método más simple: <strong style={{color:'var(--ink)',fontWeight:500}}>contar conexiones</strong>. Útil pero ingenuo — popularidad ≠ poder.</p>
       <div className="viz-wrap">
-        <div className="viz-hud">k(v) = #vecinos</div>
+        <div className="viz-hud">k(v) = <b>#vecinos</b></div>
         <svg viewBox="0 0 400 300">
-          {/* Edges */}
           {spokes.map((p, i) => (
             <line key={'e'+i}
               x1={center.x} y1={center.y} x2={p.x} y2={p.y}
-              stroke={lit(i) ? 'var(--teal)' : 'oklch(0.85 0.008 80)'}
+              stroke={lit(i) ? COLORS.violet : COLORS.edge}
               strokeWidth={lit(i) ? 2.5 : 1.4}
-              style={{ transition: 'stroke 0.35s ease, stroke-width 0.35s ease' }}
-            />
+              style={{ transition: 'stroke 0.35s ease, stroke-width 0.35s ease' }}/>
           ))}
-          {/* Current counting flash */}
-          {currentlyCountingIdx >= 0 && lit(currentlyCountingIdx) && (
-            <circle cx={spokes[currentlyCountingIdx].x} cy={spokes[currentlyCountingIdx].y}
-              r={22} fill="none" stroke="var(--teal)" strokeWidth="2" opacity="0.5">
-              <animate attributeName="r" from="14" to="30" dur="0.7s" repeatCount="1"/>
-              <animate attributeName="opacity" from="0.7" to="0" dur="0.7s" repeatCount="1"/>
+          {currentIdx >= 0 && lit(currentIdx) && (
+            <circle cx={spokes[currentIdx].x} cy={spokes[currentIdx].y}
+              r={22} fill="none" stroke={COLORS.violet} strokeWidth="2" opacity="0.6">
+              <animate attributeName="r" from="14" to="32" dur="0.7s" repeatCount="1"/>
+              <animate attributeName="opacity" from="0.8" to="0" dur="0.7s" repeatCount="1"/>
             </circle>
           )}
-          {/* Outer nodes */}
           {spokes.map((p, i) => (
             <g key={'n'+i}>
               <circle cx={p.x} cy={p.y}
                 r={lit(i) ? 14 : 10}
-                fill={lit(i) ? 'var(--teal)' : 'oklch(0.18 0.012 260)'}
-                style={{ transition: 'all 0.35s ease' }}
-              />
+                fill={lit(i) ? COLORS.violet : COLORS.node}
+                style={{ transition: 'all 0.35s ease' }}/>
               {lit(i) && (
                 <text x={p.x} y={p.y + 4.5}
                   fontFamily="JetBrains Mono" fontSize="12" textAnchor="middle"
-                  fill="white" fontWeight="600">{i + 1}</text>
+                  fill="oklch(0.155 0.045 280)" fontWeight="700">{i + 1}</text>
               )}
             </g>
           ))}
-          {/* Center */}
-          <circle cx={center.x} cy={center.y} r={22}
-            fill="var(--teal)"
+          <circle cx={center.x} cy={center.y} r={24}
+            fill={COLORS.violet}
             className={allLit ? 'hub-beat' : ''}
             style={{
               filter: allLit
-                ? 'drop-shadow(0 0 18px oklch(0.62 0.10 175 / 0.7))'
-                : 'drop-shadow(0 0 6px oklch(0.62 0.10 175 / 0.3))',
+                ? 'drop-shadow(0 0 22px oklch(0.74 0.16 295 / 0.75))'
+                : 'drop-shadow(0 0 10px oklch(0.74 0.16 295 / 0.45))',
               transition: 'filter 0.4s'
             }}/>
           <text x={center.x} y={center.y + 5}
             fontFamily="JetBrains Mono" fontSize="14" textAnchor="middle"
-            fill="white" fontWeight="700">v</text>
+            fill="oklch(0.155 0.045 280)" fontWeight="700">v</text>
         </svg>
       </div>
       <div className="metric-row">
@@ -402,16 +446,12 @@ function DegreePanel({ tick }) {
 // ========================================================================
 function BetweennessPanel({ tick }) {
   const L = {
-    L1: { x: 60,  y: 70  },
-    L2: { x: 60,  y: 230 },
-    L3: { x: 130, y: 110 },
-    L4: { x: 130, y: 190 },
+    L1: { x: 60,  y: 70  }, L2: { x: 60,  y: 230 },
+    L3: { x: 130, y: 110 }, L4: { x: 130, y: 190 },
   };
   const R = {
-    R1: { x: 340, y: 70  },
-    R2: { x: 340, y: 230 },
-    R3: { x: 270, y: 110 },
-    R4: { x: 270, y: 190 },
+    R1: { x: 340, y: 70  }, R2: { x: 340, y: 230 },
+    R3: { x: 270, y: 110 }, R4: { x: 270, y: 190 },
   };
   const B = { x: 200, y: 150 };
   const nodes = { ...L, ...R, B };
@@ -420,8 +460,6 @@ function BetweennessPanel({ tick }) {
     ['R1','R3'],['R1','R4'],['R2','R3'],['R2','R4'],['R3','R4'],['R1','R2'],
     ['L3','B'],['L4','B'],['R3','B'],['R4','B'],
   ];
-
-  // Sequence of packets across the bridge
   const seqs = [
     ['L1','L3','B','R4','R2'],
     ['L2','L4','B','R3','R1'],
@@ -430,7 +468,6 @@ function BetweennessPanel({ tick }) {
   ];
   const PACKET_INTERVAL = 22;
   const PACKET_DURATION = 24;
-
   const packets = [];
   for (let k = -2; k <= Math.ceil(tick / PACKET_INTERVAL); k++) {
     const start = k * PACKET_INTERVAL;
@@ -445,81 +482,72 @@ function BetweennessPanel({ tick }) {
     const f = segT - segIdx;
     const a = path[segIdx];
     const b = path[segIdx + 1];
-    const crossingBridge = segIdx === 1 || segIdx === 2;
     packets.push({
       id: k,
       x: lerp(a.x, b.x, f),
       y: lerp(a.y, b.y, f),
-      crossingBridge,
+      crossingBridge: segIdx === 1 || segIdx === 2,
     });
   }
-
   const totalCrossings = Math.max(0, Math.ceil((tick + 2 * PACKET_INTERVAL) / PACKET_INTERVAL) - 2);
   const bridgeActive = packets.some(p => p.crossingBridge);
-
-  const bridgeEdgeIds = new Set(['L3-B','L4-B','R3-B','R4-B','B-L3','B-L4','B-R3','B-R4']);
+  const bridgeEdgeIds = new Set(['L3-B','L4-B','R3-B','R4-B']);
 
   return (
-    <div className="panel" data-color="amber">
-      <div className="panel-head">
-        <span className="tag">02 · INTERMEDIACIÓN</span>
-        <span className="step">{bridgeActive ? '→ atraviesa el puente' : 'el tráfico fluye…'}</span>
+    <div className="panel" data-color="cyan">
+      <div className="panel-eyebrow">
+        <span>02 / Intermediación</span>
+        <span className="step">{bridgeActive ? '→ atraviesa el puente' : 'tráfico fluyendo…'}</span>
       </div>
-      <h2>Intermediación<span className="alt">/ Betweenness</span></h2>
-      <p className="cap">El puente entre comunidades.</p>
+      <h2>Identificamos los puentes.<span className="sub">betweenness(v) = #caminos óptimos × v</span></h2>
+      <p className="cap">Mide cuántos caminos cortos pasan por el nodo. <strong style={{color:'var(--ink)',fontWeight:500}}>Captura puentes</strong> — pero sólo los caminos óptimos.</p>
       <div className="viz-wrap">
-        <div className="viz-hud">Σ caminos óptimos × B</div>
+        <div className="viz-hud">Σ shortest <b>× B</b></div>
         <svg viewBox="0 0 400 300">
-          {/* Edges */}
           {edges.map(([a, b], i) => {
-            const key = `${a}-${b}`;
-            const isBridge = bridgeEdgeIds.has(key);
+            const isBridge = bridgeEdgeIds.has(`${a}-${b}`);
             return (
               <line key={i}
                 x1={nodes[a].x} y1={nodes[a].y} x2={nodes[b].x} y2={nodes[b].y}
-                stroke={isBridge && bridgeActive ? 'var(--amber)' : 'oklch(0.85 0.008 80)'}
+                stroke={isBridge && bridgeActive ? COLORS.cyan : COLORS.edge}
                 strokeWidth={isBridge ? 2 : 1.4}
                 style={{ transition: 'stroke 0.3s' }}/>
             );
           })}
-          {/* Pulse ring on bridge */}
           {bridgeActive && (
             <circle cx={B.x} cy={B.y} r={26} fill="none"
-              stroke="var(--amber)" strokeWidth="1.5" opacity="0.4">
-              <animate attributeName="r" from="20" to="40" dur="1s" repeatCount="indefinite"/>
+              stroke={COLORS.cyan} strokeWidth="1.5" opacity="0.4">
+              <animate attributeName="r" from="22" to="44" dur="1s" repeatCount="indefinite"/>
               <animate attributeName="opacity" from="0.6" to="0" dur="1s" repeatCount="indefinite"/>
             </circle>
           )}
-          {/* Nodes */}
           {Object.entries(nodes).map(([id, n]) => (
             id === 'B' ? (
               <g key={id}>
-                <circle cx={n.x} cy={n.y} r={20}
-                  fill="var(--amber)"
+                <circle cx={n.x} cy={n.y} r={22}
+                  fill={COLORS.cyan}
                   className={bridgeActive ? 'hub-beat' : ''}
                   style={{
                     filter: bridgeActive
-                      ? 'drop-shadow(0 0 14px oklch(0.78 0.15 65 / 0.8))'
-                      : 'drop-shadow(0 0 6px oklch(0.78 0.15 65 / 0.4))',
+                      ? 'drop-shadow(0 0 18px oklch(0.78 0.13 205 / 0.85))'
+                      : 'drop-shadow(0 0 10px oklch(0.78 0.13 205 / 0.45))',
                   }}/>
                 <text x={n.x} y={n.y + 5}
                   fontFamily="JetBrains Mono" fontSize="13" textAnchor="middle"
-                  fill="white" fontWeight="700">B</text>
+                  fill="oklch(0.155 0.045 280)" fontWeight="700">B</text>
               </g>
             ) : (
-              <circle key={id} cx={n.x} cy={n.y} r={9} fill="oklch(0.18 0.012 260)"/>
+              <circle key={id} cx={n.x} cy={n.y} r={9} fill={COLORS.node}/>
             )
           ))}
-          {/* Cluster labels */}
-          <text x={95} y={275} fontFamily="JetBrains Mono" fontSize="10" textAnchor="middle"
-            fill="var(--ink-soft)" letterSpacing="2">COMUNIDAD A</text>
-          <text x={305} y={275} fontFamily="JetBrains Mono" fontSize="10" textAnchor="middle"
-            fill="var(--ink-soft)" letterSpacing="2">COMUNIDAD B</text>
-          {/* Packets */}
+          <text x={95} y={278} fontFamily="JetBrains Mono" fontSize="10" textAnchor="middle"
+            fill="oklch(0.52 0.035 280)" letterSpacing="2">COMUNIDAD A</text>
+          <text x={305} y={278} fontFamily="JetBrains Mono" fontSize="10" textAnchor="middle"
+            fill="oklch(0.52 0.035 280)" letterSpacing="2">COMUNIDAD B</text>
           {packets.map(p => (
             <g key={p.id}>
-              <circle cx={p.x} cy={p.y} r={11} fill="none" stroke="var(--coral)" opacity="0.3"/>
-              <circle cx={p.x} cy={p.y} r={6} fill="var(--coral)"/>
+              <circle cx={p.x} cy={p.y} r={12} fill="none" stroke={COLORS.pink} opacity="0.35"/>
+              <circle cx={p.x} cy={p.y} r={6} fill={COLORS.pink}/>
             </g>
           ))}
         </svg>
@@ -547,15 +575,12 @@ function CommunicabilityPanel({ tick }) {
     const a = (i * 60 - 90) * Math.PI / 180;
     return { x: H.x + outerR * Math.cos(a), y: H.y + outerR * Math.sin(a) };
   });
-
-  // Edges: hub to all outer, plus ring connecting outer neighbors (wheel)
   const edges = [];
   outer.forEach(o => edges.push({ a: H, b: o, kind: 'spoke' }));
   for (let i = 0; i < outer.length; i++) {
     edges.push({ a: outer[i], b: outer[(i + 1) % outer.length], kind: 'ring' });
   }
 
-  // Tendril pulses (walks of varying lengths)
   const TENDRIL_INTERVAL = 6;
   const TENDRIL_DURATION = 14;
   const tendrils = [];
@@ -564,15 +589,11 @@ function CommunicabilityPanel({ tick }) {
     const elapsed = tick - start;
     if (elapsed < 0 || elapsed > TENDRIL_DURATION) continue;
     const idx = mod(k * 5 + 1, 6);
-    const len = mod(k * 3 + 1, 3); // 0,1,2 → 1-hop, 2-hop, 3-hop
+    const len = mod(k * 3 + 1, 3);
     let path;
-    if (len === 0) {
-      path = [outer[idx], H];
-    } else if (len === 1) {
-      path = [outer[idx], outer[(idx + 1) % 6], H];
-    } else {
-      path = [outer[idx], outer[(idx + 1) % 6], outer[(idx + 2) % 6], H];
-    }
+    if (len === 0) path = [outer[idx], H];
+    else if (len === 1) path = [outer[idx], outer[(idx + 1) % 6], H];
+    else path = [outer[idx], outer[(idx + 1) % 6], outer[(idx + 2) % 6], H];
     const segCount = path.length - 1;
     const t = Math.min(1, elapsed / TENDRIL_DURATION);
     const segT = t * segCount;
@@ -581,7 +602,6 @@ function CommunicabilityPanel({ tick }) {
     const a = path[segIdx];
     const b = path[segIdx + 1];
     const arrived = segIdx === segCount - 1 && f > 0.85;
-    // attenuation: walks of length k weighted by 1/k!
     const weight = 1 / [1, 2, 6][len];
     tendrils.push({
       id: k,
@@ -593,82 +613,72 @@ function CommunicabilityPanel({ tick }) {
       weight,
     });
   }
-
   const hubGlow = tendrils.some(t => t.arrived);
   const cbcScore = (tick * 0.11).toFixed(1);
 
   return (
-    <div className="panel" data-color="coral">
-      <div className="panel-head">
-        <span className="tag">03 · COMUNICABILIDAD</span>
+    <div className="panel" data-color="pink">
+      <div className="panel-eyebrow">
+        <span>03 / Comunicabilidad</span>
         <span className="step">caminos de toda longitud…</span>
       </div>
-      <h2>Comunicabilidad<span className="alt">/ CBC</span></h2>
-      <p className="cap">Considera <em>todos</em> los caminos.</p>
+      <h2>Mapeamos toda la red.<span className="sub">CBC(v) = (e^A)<sub>vv</sub></span></h2>
+      <p className="cap">Considera <strong style={{color:'var(--ink)',fontWeight:500}}>todos</strong> los caminos posibles, ponderados por longitud. Nuestra medida favorita.</p>
       <div className="viz-wrap">
-        <div className="viz-hud">CBC(v) = (e^A)<sub>vv</sub></div>
+        <div className="viz-hud"><b>Σ</b> caminos · 1/k!</div>
         <svg viewBox="0 0 400 300">
           <defs>
-            <radialGradient id="hubGlow" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" stopColor="oklch(0.66 0.18 30)" stopOpacity="0.5"/>
-              <stop offset="100%" stopColor="oklch(0.66 0.18 30)" stopOpacity="0"/>
+            <radialGradient id="cbcHubGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="oklch(0.70 0.22 355)" stopOpacity="0.5"/>
+              <stop offset="100%" stopColor="oklch(0.70 0.22 355)" stopOpacity="0"/>
             </radialGradient>
           </defs>
-          {/* Edges with constant flow */}
           {edges.map((e, i) => (
             <line key={i}
               x1={e.a.x} y1={e.a.y} x2={e.b.x} y2={e.b.y}
-              stroke={e.kind === 'spoke' ? 'oklch(0.66 0.18 30 / 0.45)' : 'oklch(0.66 0.18 30 / 0.28)'}
-              strokeWidth={e.kind === 'spoke' ? 1.6 : 1.3}
+              stroke={e.kind === 'spoke' ? 'oklch(0.70 0.22 355 / 0.5)' : 'oklch(0.70 0.22 355 / 0.3)'}
+              strokeWidth={e.kind === 'spoke' ? 1.7 : 1.4}
               strokeDasharray="3 5"
               style={{
                 animation: `dashflow ${1.8 + (i % 4) * 0.3}s linear infinite`,
                 animationDelay: `${(i % 6) * 0.15}s`,
               }}/>
           ))}
-          {/* Hub aura */}
-          <circle cx={H.x} cy={H.y} r={56} fill="url(#hubGlow)"
+          <circle cx={H.x} cy={H.y} r={60} fill="url(#cbcHubGlow)"
             opacity={hubGlow ? 1 : 0.7}
             style={{ transition: 'opacity 0.3s' }}/>
-          {/* Outer nodes */}
           {outer.map((o, i) => (
-            <circle key={i} cx={o.x} cy={o.y} r={9} fill="oklch(0.18 0.012 260)"/>
+            <circle key={i} cx={o.x} cy={o.y} r={9} fill={COLORS.node}/>
           ))}
-          {/* Hub */}
-          <circle cx={H.x} cy={H.y} r={20} fill="var(--coral)"
+          <circle cx={H.x} cy={H.y} r={22} fill={COLORS.pink}
             className="hub-beat"
-            style={{
-              filter: 'drop-shadow(0 0 16px oklch(0.66 0.18 30 / 0.7))',
-            }}/>
+            style={{ filter: 'drop-shadow(0 0 18px oklch(0.70 0.22 355 / 0.8))' }}/>
           <text x={H.x} y={H.y + 5}
             fontFamily="JetBrains Mono" fontSize="13" textAnchor="middle"
-            fill="white" fontWeight="700">v</text>
-          {/* Arriving pulse ring */}
+            fill="oklch(0.155 0.045 280)" fontWeight="700">v</text>
           {hubGlow && (
-            <circle cx={H.x} cy={H.y} r={22} fill="none" stroke="var(--coral)" strokeWidth="2" opacity="0.5">
-              <animate attributeName="r" from="20" to="44" dur="0.9s" repeatCount="indefinite"/>
+            <circle cx={H.x} cy={H.y} r={22} fill="none" stroke={COLORS.pink} strokeWidth="2" opacity="0.5">
+              <animate attributeName="r" from="22" to="48" dur="0.9s" repeatCount="indefinite"/>
               <animate attributeName="opacity" from="0.6" to="0" dur="0.9s" repeatCount="indefinite"/>
             </circle>
           )}
-          {/* Tendril particles */}
           {tendrils.map(t => {
             const op = (1 - t.progress * 0.25) * (0.4 + 0.6 * t.weight);
             const radius = 4 + 3 * t.weight;
             return (
               <g key={t.id}>
                 <circle cx={t.x} cy={t.y} r={radius * 1.8} fill="none"
-                  stroke="var(--coral)" opacity={op * 0.3}/>
-                <circle cx={t.x} cy={t.y} r={radius} fill="var(--coral)" opacity={op}/>
+                  stroke={COLORS.pink} opacity={op * 0.3}/>
+                <circle cx={t.x} cy={t.y} r={radius} fill={COLORS.pink} opacity={op}/>
               </g>
             );
           })}
-          {/* Path-length legend */}
           <g transform="translate(14, 248)">
-            <text fontFamily="JetBrains Mono" fontSize="10" fill="var(--ink-soft)" letterSpacing="1.5">
-              <tspan x="0" y="0">CAMINOS</tspan>
-              <tspan x="0" y="14" fill="var(--coral)">k=1 ▌▌▌</tspan>
-              <tspan x="0" y="26" fill="oklch(0.66 0.18 30 / 0.6)">k=2 ▌▌</tspan>
-              <tspan x="0" y="38" fill="oklch(0.66 0.18 30 / 0.35)">k=3 ▌</tspan>
+            <text fontFamily="JetBrains Mono" fontSize="10" letterSpacing="1.5">
+              <tspan x="0" y="0" fill="oklch(0.52 0.035 280)">CAMINOS</tspan>
+              <tspan x="0" y="14" fill={COLORS.pink}>k=1 ▌▌▌</tspan>
+              <tspan x="0" y="26" fill="oklch(0.70 0.22 355 / 0.6)">k=2 ▌▌</tspan>
+              <tspan x="0" y="38" fill="oklch(0.70 0.22 355 / 0.35)">k=3 ▌</tspan>
             </text>
           </g>
         </svg>
@@ -679,7 +689,7 @@ function CommunicabilityPanel({ tick }) {
           <span className="lbl">Σ caminos ponderados</span>
         </div>
         <div className="takeaway">
-          <b>Ve la red completa</b>, no solo los atajos.
+          <b>Ve la red completa</b>, no sólo los atajos.
         </div>
       </div>
     </div>
@@ -692,7 +702,6 @@ function CommunicabilityPanel({ tick }) {
 function App() {
   const [tick, setTick] = useState(0);
   const [playing, setPlaying] = useState(true);
-
   useEffect(() => {
     if (!playing) return;
     const id = setInterval(() => setTick(t => t + 1), TICK_MS);
@@ -702,8 +711,8 @@ function App() {
   return (
     <div className="page">
       <header>
-        <h1>¿Quién es el más influyente?</h1>
-        <p className="sub">Tres formas de medir <em>centralidad</em> — y por qué solo una nos sirve para mapear el contagio en un mercado.</p>
+        <h1>¿Quién es el <span className="accent">más influyente</span>?</h1>
+        <p className="sub">Tres formas de medir <em>centralidad</em> — y por qué sólo una nos sirve para mapear el contagio en un mercado financiero.</p>
       </header>
 
       <div className="controls">
@@ -722,22 +731,22 @@ function App() {
       </div>
 
       <div className="cards">
-        <div className="card" data-color="teal">
+        <div className="card" data-color="violet">
           <span className="title">Degree</span>
           Cuenta amigos directos. Útil pero ingenuo: <strong>no distingue entre un nodo central y uno periférico-pero-popular</strong>.
         </div>
-        <div className="card" data-color="amber">
+        <div className="card" data-color="cyan">
           <span className="title">Betweenness</span>
           Mide cuántos caminos cortos pasan por el nodo. Captura puentes — <strong>pero sólo los caminos óptimos</strong>.
         </div>
-        <div className="card" data-color="coral">
+        <div className="card" data-color="pink">
           <span className="title">Communicability · CBC</span>
           Considera todos los caminos posibles, ponderados por longitud. <strong>Nuestra medida favorita.</strong>
         </div>
       </div>
 
       <div className="footnote">
-        <div className="mark">“</div>
+        <div className="mark">”</div>
         <div className="text">
           En un mercado financiero, el shock <em>no</em> viaja sólo por el camino más corto.<br/>
           Viaja por <strong>todos los caminos posibles</strong> — por eso elegimos CBC.
